@@ -1,14 +1,11 @@
 import 'package:dangma/states/user_provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../constraints/common_size.dart';
 import '../../utils/logger.dart';
 
 class IntroPage extends StatelessWidget {
-  PageController controller;
-  IntroPage(PageController this.controller,{Key? key}) : super(key: key);
+  IntroPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +59,7 @@ class IntroPage extends StatelessWidget {
                   children: [
                     TextButton(
                       onPressed: () async{
-                        controller.animateToPage(
+                        context.read<PageController>().animateToPage(
                             1,
                             duration: Duration(milliseconds: 500),
                             curve: Curves.easeIn

@@ -3,6 +3,7 @@ import 'package:dangma/screens/start/auth_page.dart';
 import 'package:dangma/screens/start_screen.dart';
 import 'package:dangma/screens/splash_screen.dart';
 import 'package:dangma/states/user_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:dangma/utils/logger.dart';
 import 'package:beamer/beamer.dart';
@@ -14,7 +15,7 @@ final _routerDelegate = BeamerDelegate(
         pathBlueprints: ['/'],
         check: (context, location) {
           return context.watch<UserProvider>().userState;
-        },
+        }, //check가 false이면 showPage를 보여줌.
         showPage: BeamPage(child: StartScreen())
     ),
   ],
@@ -22,9 +23,11 @@ final _routerDelegate = BeamerDelegate(
   BeamerLocationBuilder(beamLocations: [HomeLocation(),]),
 );
 
-void main() {
-
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   logger.d('My first log by logger');
+  Provider.debugCheckInvalidValueType = null;
   runApp(MyApp());
 }
 
@@ -71,6 +74,8 @@ class TomatoApp extends StatelessWidget {
           textTheme: TextTheme(
             // headline3: TextStyle(fontFamily: 'DoHyeon'),
             button: TextStyle(color: Colors.white),
+            subtitle1: TextStyle(color: Colors.black87,fontSize: 15),
+            subtitle2: TextStyle(color: Colors.grey,fontSize: 13)
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
@@ -85,9 +90,14 @@ class TomatoApp extends StatelessWidget {
               elevation: 2,
               backgroundColor: Colors.white,
               titleTextStyle:
-                  TextStyle(fontFamily: 'DoHyeon', color: Colors.black87)),
+                  TextStyle(fontFamily: 'Dohyeon', color: Colors.black87)),
           primarySwatch: Colors.red,
           // fontFamily: 'DoHyeon'
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedItemColor: Colors.black87,
+          unselectedItemColor: Colors.black54,
+
+        )
         ),
         routeInformationParser: BeamerParser(),
         routerDelegate: _routerDelegate,

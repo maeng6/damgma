@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1022942299828",
+    "project_id": "tomato-record-89b03",
+    "storage_bucket": "tomato-record-89b03.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1022942299828:android:e083147c7f9e3fa7fbb9e1",
+        "android_client_info": {
+          "package_name": "com.example.dangma"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1022942299828-vk5riips5fmhi7t24cv11cqh62k0jmbp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEk43qZHLznIunGwLfcnoDH2f-6x80zRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1022942299828-vk5riips5fmhi7t24cv11cqh62k0jmbp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1022942299828-r6taeufr841flpr7akifqffr3knr9sab.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dangma"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
