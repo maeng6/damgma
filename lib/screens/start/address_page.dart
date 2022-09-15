@@ -7,6 +7,7 @@ import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constraints/common_size.dart';
+import '../../constraints/shared_pref_keys.dart';
 import '../../utils/logger.dart';
 
 class AddressPage extends StatefulWidget {
@@ -102,6 +103,7 @@ class _AddressPageState extends State<AddressPage> {
               }
 
               _locationData = await location.getLocation();
+              logger.d(_locationData);
               logger.d('locationData $_locationData');
               List<AddressModel2> addresses = await AddressService()
                   .findAddressBycoordinate(lon:_locationData.longitude, lat:_locationData.latitude);
@@ -129,7 +131,10 @@ class _AddressPageState extends State<AddressPage> {
                   return Container();
                 return ListTile(
                   onTap: (){
-                    _saveAddressAndGoToNextPAge(_addressModel!.result!.items![index].address!.road??"");
+                    _saveAddressAndGoToNextPAge(_addressModel!.result!.items![index].address!.road??"",
+                       num.parse(_addressModel!.result!.items![index].point!.y??"0"),
+                        num.parse(_addressModel!.result!.items![index].point!.x??"0")
+                    );
                   },
                   title: Text(
                       _addressModel!.result!.items![index].address!.road ?? ""),
@@ -155,7 +160,10 @@ class _AddressPageState extends State<AddressPage> {
                     return Container();
                   return ListTile(
                     onTap: (){
-                      _saveAddressAndGoToNextPAge(_addressModel2List[index].result![0].text??"");
+                      _saveAddressAndGoToNextPAge(_addressModel2List[index].result![0].text??"",
+                          num.parse(_addressModel2List[index].input!.point!.y??"0"),
+                          num.parse(_addressModel2List[index].input!.point!.x??"0")
+                      );
                     },
                     title: Text(
                         _addressModel2List[index].result![0].text ?? ""),
@@ -172,8 +180,8 @@ class _AddressPageState extends State<AddressPage> {
     );
   }
 
-  _saveAddressAndGoToNextPAge(String address) async {
-    await _saveAddressOnSharedPreference(address);
+  _saveAddressAndGoToNextPAge(String address, num lat, num lon) async {
+    await _saveAddressOnSharedPreference(address,lat,lon);
     context.read<PageController>().animateToPage(
         2,
         duration: Duration(milliseconds: 500),
@@ -181,9 +189,11 @@ class _AddressPageState extends State<AddressPage> {
     );
   }
 
-  _saveAddressOnSharedPreference(String address) async {
+  _saveAddressOnSharedPreference(String address,num lat, num lon) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('address', address);
+    await prefs.setString(SHARED_ADDRESS, address);
+    await prefs.setDouble(SHARED_LAT, lat.toDouble());
+    await prefs.setDouble(SHARED_LON, lon.toDouble());
   }
 
 }

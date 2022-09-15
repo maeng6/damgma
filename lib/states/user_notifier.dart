@@ -8,9 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constraints/shared_pref_keys.dart';
 import '../utils/logger.dart';
 
-class UserProvider extends ChangeNotifier{
+class UserNotifier extends ChangeNotifier{
 
-  UserProvider(){
+  UserNotifier(){
     initUser();
   }
 
@@ -50,5 +50,6 @@ class UserProvider extends ChangeNotifier{
   }
 
   User? get user => _user;
+  UserModel? get userModel => _userModel;
 
 }

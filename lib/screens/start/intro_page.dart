@@ -1,4 +1,4 @@
-import 'package:dangma/states/user_provider.dart';
+import 'package:dangma/states/user_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constraints/common_size.dart';
@@ -9,7 +9,6 @@ class IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('current user state: ${context.read<UserProvider>().userState}');
     return LayoutBuilder(
       builder: (context,constraints){
 

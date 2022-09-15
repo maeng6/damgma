@@ -1,11 +1,11 @@
-import 'package:dangma/states/user_provider.dart';
 import 'package:dangma/utils/logger.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constraints/common_size.dart';
+import '../../constraints/shared_pref_keys.dart';
 
 class AuthPage extends StatefulWidget {
   AuthPage({Key? key}) : super(key: key);
@@ -17,6 +17,7 @@ class AuthPage extends StatefulWidget {
 const duration = Duration(milliseconds: 300);
 
 class _AuthPageState extends State<AuthPage> {
+  final  auth=FirebaseAuth.instance ;
   TextEditingController _phoneNumberController = TextEditingController(text:"010");
 
   TextEditingController _codeController = TextEditingController();
@@ -24,6 +25,9 @@ class _AuthPageState extends State<AuthPage> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   VerificationStatus _verificationStatus = VerificationStatus.none;
+
+  String? _verificationID;
+  int? _forceResendingToken;
 
   @override
   Widget build(BuildContext context) {
@@ -91,16 +95,55 @@ class _AuthPageState extends State<AuthPage> {
                     height: common_sm_padding,
                   ),
                   TextButton(
-                      onPressed: (){
+                      onPressed: () async {
+                        if(_verificationStatus==VerificationStatus.codeSending)
+                          return;
+
                         if(_formKey.currentState!=null) {
                           bool passed = _formKey.currentState!.validate();
                           print(passed);
-                          if(passed)
-                            setState((){});
-                            _verificationStatus = VerificationStatus.codeSent;
-                        }
-                      },
-                      child: Text('인증문자 발송')
+                          if(passed){
+                            String phoneNum = _phoneNumberController.text;
+                          phoneNum = phoneNum.replaceAll(' ', '');
+                          phoneNum = phoneNum.replaceFirst('0', '');
+
+                          setState(() {
+                            _verificationStatus = VerificationStatus.codeSending;
+                          });
+
+                          await auth.verifyPhoneNumber(
+                            phoneNumber: '+82$phoneNum',
+                            forceResendingToken: _forceResendingToken,
+                            verificationCompleted: (PhoneAuthCredential credential) async {
+                              await auth.signInWithCredential(credential);
+                            },
+                            codeAutoRetrievalTimeout: (String verificationId) {  },
+                            codeSent: (String verificationId, int? forceResendingToken) async{
+                              setState(() {
+                                _verificationStatus = VerificationStatus.codeSent;
+                              });
+
+                              _verificationID = verificationId;
+                              _forceResendingToken = forceResendingToken;
+
+                            },
+                            verificationFailed: (FirebaseAuthException error) {
+                              logger.d(error.message);
+
+                              setState(() {
+                                _verificationStatus = VerificationStatus.none;
+                              });
+                            });
+                          }
+                          }
+                        },
+                      child: (_verificationStatus==VerificationStatus.codeSending)? SizedBox(
+                        height: 26,
+                          width: 26,
+                        child: CircularProgressIndicator(
+                          color: Colors.white ,
+                        ),
+                      ): Text('인증문자 발송')
                   ),
                   SizedBox(
                     height: common_padding,
@@ -151,7 +194,8 @@ class _AuthPageState extends State<AuthPage> {
   double getVerificationHeight(VerificationStatus status){
     switch(status){
       case VerificationStatus.none:
-      return 0;
+        return 0;
+      case VerificationStatus.codeSending:
       case VerificationStatus.codeSent:
       case VerificationStatus.verifying:
       case VerificationStatus.verificationDone:
@@ -164,6 +208,7 @@ class _AuthPageState extends State<AuthPage> {
     switch(status){
       case VerificationStatus.none:
         return 0;
+      case VerificationStatus.codeSending:
       case VerificationStatus.codeSent:
       case VerificationStatus.verifying:
       case VerificationStatus.verificationDone:
@@ -171,30 +216,41 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
-  void attemptVerify() async{
-    setState(() {
-      _verificationStatus = VerificationStatus.verifying;
-    });
 
-    await Future.delayed(Duration(seconds: 1));
+  void attemptVerify() async{
+  setState(() {
+  _verificationStatus = VerificationStatus.verifying;
+  });
+
+  try{
+  // Create a PhoneAuthCredential with the code
+  PhoneAuthCredential credential =
+  PhoneAuthProvider.credential(
+  verificationId: _verificationID!,
+  smsCode: _codeController.text);
+
+  // Sign the user in (or link) with the credential
+  await auth.signInWithCredential(credential);
+  }catch (e){
+    logger.e('verification failed!');
+    SnackBar snackBar = SnackBar(content: Text('입력하신 코드가 틀려요!'),);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
     setState(() {
       _verificationStatus = VerificationStatus.verificationDone;
     });
-
-    context.read<UserProvider>().setUserAuth(true);
-    logger.d('${context.read<UserProvider>().userState}');
-
   }
 
   _getAddress() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String address = prefs.getString('address')??"";
-    logger.d('address from prefs - $address');
+    String address = prefs.getString(SHARED_ADDRESS)??"";
+    double lat = prefs.getDouble(SHARED_LAT)??0;
+    double lon = prefs.getDouble(SHARED_LON)??0;
   }
 
 }
 
 enum VerificationStatus{
-  none, codeSent, verifying, verificationDone
+  none,codeSending, codeSent, verifying, verificationDone
 }
