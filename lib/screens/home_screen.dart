@@ -1,10 +1,13 @@
 import 'package:beamer/beamer.dart';
 import 'package:dangma/router/locations.dart';
 import 'package:dangma/screens/home/items_page.dart';
+import 'package:dangma/screens/home/map_page.dart';
+import 'package:dangma/states/user_notifier.dart';
 import 'package:dangma/widgets/expandable_fab.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -23,9 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _bottomSelectedIndex,
         children: [
           ItemsPage(),
-          Container(
-            color: Colors.accents[0],
-          ),
+          (context.read<UserNotifier>().userModel == null)
+              ? Container()
+              : MapPage(context.read<UserNotifier>().userModel!),
           Container(
             color: Colors.accents[3],
           ),

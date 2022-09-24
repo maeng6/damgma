@@ -1,6 +1,8 @@
+import 'package:beamer/beamer.dart';
 import 'package:dangma/constraints/common_size.dart';
 import 'package:dangma/data/item_model.dart';
 import 'package:dangma/repo/user_service.dart';
+import 'package:dangma/router/locations.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +47,9 @@ class ItemsPage extends StatelessWidget {
         itemBuilder: (context, index) {
           ItemModel item = items[index];
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              context.beamToNamed('/$LOCATION_ITEM/${item.itemKey}');
+            },
             child: SizedBox(
               height: imgSize,
               child: Row(

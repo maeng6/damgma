@@ -11,11 +11,9 @@ import 'package:dangma/states/select_image_notifier.dart';
 import 'package:dangma/states/user_notifier.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:provider/provider.dart';
-
 import '../../utils/logger.dart';
 
 class InputScreen extends StatefulWidget {
@@ -62,6 +60,7 @@ class _InputScreenState extends State<InputScreen> {
     List<String> downloadUrls = await ImageStorage.uploadImages(images,itemKey);
 
     final num? price = num.tryParse(_priceController.text.replaceAll(',', '').replaceAll('원', ''));
+    //_priceController.text.replaceAll(new RegExp(r"\D"),''));
 
     ItemModel itemModel = ItemModel(
         itemKey: itemKey,
@@ -79,7 +78,7 @@ class _InputScreenState extends State<InputScreen> {
 
     logger.d('upload finished - ${downloadUrls.toString()}');
 
-    await ItemService().createNewItem(itemModel.toJson(), itemKey);
+    await ItemService().createNewItem(itemModel, itemKey,userNotifier.user!.uid);
 
     isCreatingItem = false;
     setState(() {});
@@ -107,7 +106,7 @@ class _InputScreenState extends State<InputScreen> {
                           Theme.of(context).appBarTheme.backgroundColor),
                   child: Text(
                     '뒤로',
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme.of(context).textTheme.bodyText1,
                   )),
               bottom: PreferredSize(
                 preferredSize: Size(_size.width, 2),
@@ -132,7 +131,7 @@ class _InputScreenState extends State<InputScreen> {
                             Theme.of(context).appBarTheme.backgroundColor),
                     child: Text(
                       '완료',
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme.of(context).textTheme.bodyText1,
                     )),
               ],
             ),

@@ -61,7 +61,7 @@ class ItemLocation extends BeamLocation{
     return [
       ...HomeLocation().buildPages(context, state),
       if (state.pathParameters.containsKey(LOCATION_ITEM_ID))
-        BeamPage(key: ValueKey(LOCATION_ITEM), child: ItemDetailScreen(LOCATION_ITEM_ID)),
+        BeamPage(key: ValueKey(LOCATION_ITEM_ID), child: ItemDetailScreen(state.pathParameters[LOCATION_ITEM_ID]??"")),
     ];
   }
 
